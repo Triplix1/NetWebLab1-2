@@ -10,7 +10,10 @@
                 myList.Add(i);
             }
 
-            Console.WriteLine(  );
+            foreach (int i in myList)
+            {
+                Console.WriteLine(i);
+            }
         }
     }
 }

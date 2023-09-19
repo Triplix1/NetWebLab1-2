@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,7 +21,7 @@ namespace Lab1
 
         public MyLinkedList(IEnumerable<T> list)
         {
-            if (list == null) 
+            if (list == null)
                 throw new ArgumentNullException("list can`t be null");
 
             foreach (var item in list)
@@ -41,11 +42,11 @@ namespace Lab1
                 Head.Next = Head;
                 Head.Previous = Head;
                 Tail = Head;
-                     
+
             }
             else
             {
-                var newNode = new MyLinkedListNode<T>(Head, Tail,item);
+                var newNode = new MyLinkedListNode<T>(Head, Tail, item);
                 Tail.Next = newNode;
                 Tail = newNode;
                 Head.Previous = Tail;
@@ -62,7 +63,7 @@ namespace Lab1
 
         public bool Contains(T item)
         {
-            throw new NotImplementedException();
+            return this.Contains
         }
 
         public void CopyTo(T[] array, int arrayIndex)
@@ -72,7 +73,17 @@ namespace Lab1
 
         public IEnumerator<T> GetEnumerator()
         {
-            throw new NotImplementedException();
+            var current = Head;
+
+            if (current == null)
+                yield break;
+
+            do
+            {
+                yield return current.Value;
+                current = current.Next;
+            }
+            while (current != Head);
         }
 
         public bool Remove(T item)
@@ -80,9 +91,9 @@ namespace Lab1
             throw new NotImplementedException();
         }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return GetEnumerator();
         }
     }
 
