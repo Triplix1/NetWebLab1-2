@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,14 +10,16 @@ namespace Lab1
 {
     public sealed class MyLinkedList<T> : ICollection<T>
     {
-        public MyLinkedListNode<T>? Head { get; set; }
-        public MyLinkedListNode<T>? Tail { get; set; }
+        public MyLinkedListNode<T>? Head { get; private set; }
+        public MyLinkedListNode<T>? Tail { get; private set; }
 
-        private int count;
+        public event EventHandler<MyLinkedListEventArgs<T>> AddedNode;
+
+        private int _count;
 
         public MyLinkedList()
         {
-            count = 0;
+            _count = 0;
         }
 
         public MyLinkedList(IEnumerable<T> list)
@@ -30,13 +33,13 @@ namespace Lab1
             }
         }
 
-        public int Count => count;
+        public int Count => _count;
 
         public bool IsReadOnly => false;
 
         public void Add(T item)
         {
-            if (count <= 0)
+            if (_count <= 0)
             {
                 Head = new MyLinkedListNode<T>(item);
                 Head.Next = Head;
@@ -45,62 +48,184 @@ namespace Lab1
 
             }
             else
-            {
+            {                
                 var newNode = new MyLinkedListNode<T>(Head, Tail, item);
-                Tail.Next = newNode;
+                Tail!.Next = newNode;
                 Tail = newNode;
-                Head.Previous = Tail;
+                Head!.Previous = Tail;
             }
-            count++;
+            _count++;
+        }
+
+        public void AddFirst(T item)
+        {
+            AddFirst(new MyLinkedListNode<T>(item));
+        }
+
+
+        public void AddFirst(MyLinkedListNode<T> node)
+        {
+            if (_count > 0)
+            {                
+                MyLinkedListNode<T>? second = Head;
+                second!.Previous = node;
+
+                if(_count == 1)
+                {
+                    Tail = second;
+                }
+
+                Head = node;
+                Head.Next = second;
+                Head.Previous = Tail!;
+                Tail!.Next = Head;
+
+                _count++;
+
+                AddedNode?.Invoke(this, new MyLinkedListEventArgs<T>(node.Value));
+            }
+            else
+            {
+                AddToEmptyList(node.Value);
+            }
+            
+        }
+
+        public bool Remove(T item)
+        {
+            var node = new MyLinkedListNode<T>(item);
+
+            return Remove(node);
+        }
+
+        public bool Remove(MyLinkedListNode<T> item)
+        {
+            var node = Find(item.Value);
+
+            if (node == null)
+                return false;
+
+            node.Previous.Next = node.Next;
+            node.Next.Previous = node.Previous;
+
+            _count--;
+
+            return true;
         }
 
         public void Clear()
         {
             Head = null;
             Tail = null;
-            count = 0;
+            _count = 0;
         }
 
         public bool Contains(T item)
         {
-            return this.Contains
+            return Find(item) != null;
+        }
+
+        public MyLinkedListNode<T>? Find(T value)
+        {
+            MyLinkedListNode<T>? current = Head;
+
+            while (current != null)
+            {
+                if (current.Value!.Equals(value))
+                {
+                    return current;
+                }
+
+                current = current.Next;
+            }
+
+            return null;
+        }
+
+        public MyLinkedListNode<T>? FindByIndex(int index)
+        {
+            if (index < 0 || index > _count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+
+            int count = 0;            
+
+            if (Head == null)
+            {
+                return null;
+            }
+
+            MyLinkedListNode<T> current = Head;
+
+            while (count < index)
+            {
+                if (current == null)
+                {
+                    return null;
+                }
+
+                count++;
+                current = current.Next;
+            }
+
+            return current;
         }
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNull(array);
+
+            if (arrayIndex < 0 || arrayIndex > array.Length)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            if (array.Length - arrayIndex < _count)
+            {
+                throw new ArgumentException();
+            }
+
+            foreach (var item in this)
+            {
+                array[arrayIndex++] = item;
+            }
         }
 
         public IEnumerator<T> GetEnumerator()
-        {
-            var current = Head;
-
-            if (current == null)
+        {           
+            if (Head == null)
                 yield break;
+
+            MyLinkedListNode<T> current = Head;
 
             do
             {
-                yield return current.Value;
-                current = current.Next;
+                yield return current!.Value;
+                current = current.Next!;
             }
             while (current != Head);
-        }
-
-        public bool Remove(T item)
-        {
-            throw new NotImplementedException();
-        }
+        }        
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
+
+        private void AddToEmptyList(T value)
+        {
+            Head = new MyLinkedListNode<T>(value);
+            Head.Next = Head;
+            Head.Previous = Head;
+            Tail = Head;
+            _count = 1;
+        }
     }
 
     public sealed class MyLinkedListNode<T>
     {
-        public MyLinkedListNode<T>? Next { get; set; }
-        public MyLinkedListNode<T>? Previous { get; set; }
+        public MyLinkedListNode<T> Next { get; set; }
+        public MyLinkedListNode<T> Previous { get; set; }
         public T Value { get; set; }
 
         public MyLinkedListNode(T value)
@@ -109,7 +234,7 @@ namespace Lab1
             Next = Previous = null;
         }
 
-        public MyLinkedListNode(MyLinkedListNode<T>? next, MyLinkedListNode<T>? previous, T value) : this(value)
+        public MyLinkedListNode(MyLinkedListNode<T> next, MyLinkedListNode<T> previous, T value) : this(value)
         {
             Next = next;
             Previous = previous;
