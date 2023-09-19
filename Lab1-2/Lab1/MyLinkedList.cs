@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Lab1
 {
@@ -14,6 +15,8 @@ namespace Lab1
         public MyLinkedListNode<T>? Tail { get; private set; }
 
         public event EventHandler<MyLinkedListEventArgs<T>> AddedNode;
+        public event EventHandler<MyLinkedListEventArgs<T>> RemovedNode;
+
 
         private int _count;
 
@@ -37,24 +40,29 @@ namespace Lab1
 
         public bool IsReadOnly => false;
 
+        #region Addings
+
         public void Add(T item)
         {
+            ArgumentNullException.ThrowIfNull(item);
+
             if (_count <= 0)
             {
-                Head = new MyLinkedListNode<T>(item);
-                Head.Next = Head;
-                Head.Previous = Head;
-                Tail = Head;
-
+                AddToEmptyList(item);
             }
             else
             {                
-                var newNode = new MyLinkedListNode<T>(Head, Tail, item);
+                var newNode = new MyLinkedListNode<T>(Head!, Tail!, item);
                 Tail!.Next = newNode;
                 Tail = newNode;
                 Head!.Previous = Tail;
-            }
-            _count++;
+                _count++;
+            }            
+        }
+
+        public void Add(MyLinkedListNode<T> node)
+        {
+            Add(node.Value);
         }
 
         public void AddFirst(T item)
@@ -65,6 +73,9 @@ namespace Lab1
 
         public void AddFirst(MyLinkedListNode<T> node)
         {
+            if (node == null || node.Value == null)
+                throw new ArgumentNullException();
+
             if (_count > 0)
             {                
                 MyLinkedListNode<T>? second = Head;
@@ -87,9 +98,21 @@ namespace Lab1
             else
             {
                 AddToEmptyList(node.Value);
-            }
-            
+            }            
         }
+
+        private void AddToEmptyList(T value)
+        {
+            Head = new MyLinkedListNode<T>(value);
+            Head.Next = Head;
+            Head.Previous = Head;
+            Tail = Head;
+            _count = 1;
+        }
+
+        #endregion
+
+        #region Removings
 
         public bool Remove(T item)
         {
@@ -105,11 +128,25 @@ namespace Lab1
             if (node == null)
                 return false;
 
+            if(_count == 1)
+            {
+                Head = null;
+                Tail = null;
+                return true;
+            }
+
+            if (node == Head)
+                Head = Head.Next;
+
+            if (node == Tail)
+                Tail = Tail.Previous;
+
             node.Previous.Next = node.Next;
             node.Next.Previous = node.Previous;
 
             _count--;
 
+            RemovedNode?.Invoke(this, new MyLinkedListEventArgs<T>(node.Value));
             return true;
         }
 
@@ -120,6 +157,9 @@ namespace Lab1
             _count = 0;
         }
 
+        #endregion
+
+        #region Findings
         public bool Contains(T item)
         {
             return Find(item) != null;
@@ -141,37 +181,9 @@ namespace Lab1
 
             return null;
         }
+        #endregion
 
-        public MyLinkedListNode<T>? FindByIndex(int index)
-        {
-            if (index < 0 || index > _count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index));
-            }
-
-            int count = 0;            
-
-            if (Head == null)
-            {
-                return null;
-            }
-
-            MyLinkedListNode<T> current = Head;
-
-            while (count < index)
-            {
-                if (current == null)
-                {
-                    return null;
-                }
-
-                count++;
-                current = current.Next;
-            }
-
-            return current;
-        }
-
+        #region Copy
         public void CopyTo(T[] array, int arrayIndex)
         {
             ArgumentNullException.ThrowIfNull(array);
@@ -192,6 +204,9 @@ namespace Lab1
             }
         }
 
+        #endregion
+
+        #region Enumerations
         public IEnumerator<T> GetEnumerator()
         {           
             if (Head == null)
@@ -212,14 +227,7 @@ namespace Lab1
             return GetEnumerator();
         }
 
-        private void AddToEmptyList(T value)
-        {
-            Head = new MyLinkedListNode<T>(value);
-            Head.Next = Head;
-            Head.Previous = Head;
-            Tail = Head;
-            _count = 1;
-        }
+        #endregion
     }
 
     public sealed class MyLinkedListNode<T>
@@ -231,7 +239,7 @@ namespace Lab1
         public MyLinkedListNode(T value)
         {
             Value = value;
-            Next = Previous = null;
+            Next = Previous = null!;
         }
 
         public MyLinkedListNode(MyLinkedListNode<T> next, MyLinkedListNode<T> previous, T value) : this(value)
