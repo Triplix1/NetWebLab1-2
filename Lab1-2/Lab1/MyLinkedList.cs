@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Lab1
@@ -57,7 +58,8 @@ namespace Lab1
                 Tail = newNode;
                 Head!.Previous = Tail;
                 _count++;
-            }            
+                AddedNode?.Invoke(this, new MyLinkedListEventArgs<T>(newNode.Value));
+            }
         }
 
         public void Add(MyLinkedListNode<T> node)
@@ -86,11 +88,11 @@ namespace Lab1
                     Tail = second;
                 }
 
-                Head = node;
-                Head.Next = second;
-                Head.Previous = Tail!;
+                var newNode = new MyLinkedListNode<T>(Head!, Tail!, node.Value);
+                Head!.Previous = newNode;
+                Head = newNode;
                 Tail!.Next = Head;
-
+                
                 _count++;
 
                 AddedNode?.Invoke(this, new MyLinkedListEventArgs<T>(node.Value));
@@ -108,6 +110,7 @@ namespace Lab1
             Head.Previous = Head;
             Tail = Head;
             _count = 1;
+            AddedNode?.Invoke(this, new MyLinkedListEventArgs<T>(value));
         }
 
         #endregion
@@ -129,9 +132,9 @@ namespace Lab1
                 return false;
 
             if(_count == 1)
-            {
-                Head = null;
-                Tail = null;
+            {                
+                Clear();
+                RemovedNode?.Invoke(this, new MyLinkedListEventArgs<T>(node.Value));
                 return true;
             }
 
@@ -165,18 +168,18 @@ namespace Lab1
             return Find(item) != null;
         }
 
-        public MyLinkedListNode<T>? Find(T value)
+        public MyLinkedListNode<T>? Find(T values)
         {
             MyLinkedListNode<T>? current = Head;
 
-            while (current != null)
+            foreach(var value in this)
             {
-                if (current.Value!.Equals(value))
+                if (value!.Equals(values))
                 {
                     return current;
                 }
 
-                current = current.Next;
+                current = current!.Next;
             }
 
             return null;

@@ -1,42 +1,31 @@
-﻿namespace Lab1
+﻿using System.Threading.Channels;
+
+namespace Lab1
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            var myList = new MyLinkedList<int>();   
-            
-            foreach (var item in myList)
-            {
-                Console.WriteLine(item);
-            }
+            var myList = new MyLinkedList<int>();
 
-            for (int i = 0; i < 10; i++)
-            {
-                myList.AddFirst(i);
-            }
+            myList.AddedNode += (sender, args) => Console.WriteLine($"has been added value {args.item}");
+            myList.RemovedNode += (sender, args) => Console.WriteLine($"has been removed value {args.item}");
 
-            foreach (var item in myList)
-            {
-                Console.WriteLine(item);
-            }
+            var scenario = new WorkScenario(myList);
 
-            for (int i = 0; i < 10; i++)
-            {
-                myList.Remove(i);
-            }
+            scenario.AddFirst();
+            Console.WriteLine();
 
-            foreach (int i in myList)
-            {
-                Console.WriteLine(i);
-            }
+            scenario.Remove();
+            Console.WriteLine();
 
-            //var arr = new int[9];
-            //arr[0] = -1;
-            //myList.CopyTo(arr, 1);
+            scenario.Add();
+            Console.WriteLine();
 
-            //for (int i = 0;i < arr.Length; i++)
-            //    Console.WriteLine(arr[i]);
+            scenario.CopyTo();
+            Console.WriteLine();
+
+            scenario.Clear();
         }
     }
 }
