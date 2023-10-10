@@ -64,6 +64,7 @@ namespace Lab1
 
         public void Add(MyLinkedListNode<T> node)
         {
+            ArgumentNullException.ThrowIfNull(node);
             Add(node.Value);
         }
 
