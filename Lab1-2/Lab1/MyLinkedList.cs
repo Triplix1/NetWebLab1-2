@@ -70,6 +70,8 @@ namespace Lab1
 
         public void AddFirst(T item)
         {
+            ArgumentNullException.ThrowIfNull(item);
+
             AddFirst(new MyLinkedListNode<T>(item));
         }
 
