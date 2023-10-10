@@ -290,5 +290,36 @@ namespace Lab1.Test
             //Assert
             action.Should().Throw<ArgumentException>();
         }
+
+        [Theory]
+        [InlineData(new int[] { 1, 2, 3, 4, 5 }, 2, new int[] { 1, 2, 1, 2, 3 })]
+        [InlineData(new int[] { 1, 2, 3, 4, 5 }, 0, new int[] { 1, 2, 3, 4, 5 })]
+        [InlineData(new int[] { 1, 2, 3, 4, 5 }, 1, new int[] { 1, 1, 2, 3, 5 })]
+        public void CopyTo_CorrectCopy(int[] actualArray, int arayIndex, int[] expectedResult)
+        {
+            //Arrange
+            var list = new MyLinkedList<int>(new int[] { 1, 2, 3, });
+
+            //Act
+            list.CopyTo(actualArray, arayIndex);
+
+            //Assert
+            actualArray.Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Theory]
+        [InlineData(new int[] { 1, 2, 3, 4, 5 }, new int[] { 1, 2, 3, 4, 5 })]
+        [InlineData(new int[] { 1, 27, 35 }, new int[] { 1, 27, 35 })]
+        public void GetEnumerator_EmptyList_EmptyResult(IEnumerable<int> list, int[] expectedResult)
+        {
+            //Arrange
+            var myLinkedList = new MyLinkedList<int>(list);
+
+            //Act
+            var actualResult = myLinkedList.ToList();
+
+            //Assert
+            actualResult.Should().BeEquivalentTo(expectedResult);
+        }
     }
 }
