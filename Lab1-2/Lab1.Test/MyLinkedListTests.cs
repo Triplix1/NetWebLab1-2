@@ -114,7 +114,7 @@ namespace Lab1.Test
         }
 
         [Fact]
-        public void Clear_EmtyList()
+        public void Clear_ShouldBeEmtyList()
         {
             //Arrange
             var list = new MyLinkedList<int>(new int[] { 1, 2, 3, });
@@ -154,6 +154,141 @@ namespace Lab1.Test
             result.Value.Should().Be(3);
         }
 
+        [Fact]
+        public void Remove_NonContainsElement_False()
+        {
+            //Arrange
+            var array = new int[] { 1, 2, 3, };
+            var list = new MyLinkedList<int>(array);
 
+            //Act
+            var result = list.Remove(4);
+
+
+            //Assert
+            result.Should().Be(false);
+            list.ToList().Should().BeEquivalentTo(array);
+        }
+
+        [Fact]
+        public void Remove_ContainsElement_True()
+        {
+            //Arrange
+            var list = new MyLinkedList<int>(new int[] { 1, 2, 3, });
+
+            //Act
+            var result = list.Remove(4);
+
+            //Assert
+            result.Should().Be(false);
+            list.Count.Should().Be(3);
+        }
+
+        [Fact]
+        public void Contains_NonContains_False()
+        {
+            //Arrange
+            var list = new MyLinkedList<int>(new int[] { 1, 2, 3, });
+
+            //Act
+            var result = list.Contains(4);
+
+            //Assert
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Contains_ContainsElement_True()
+        {
+            //Arrange
+            var list = new MyLinkedList<int>(new int[] { 1, 2, 3, });
+
+            //Act
+            var result = list.Contains(3);
+
+            //Assert
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public void ContainsNode_ContainsNode_True()
+        {
+            //Arrange
+            var list = new MyLinkedList<int>(new int[] { 1, 2, 3, });
+
+            //Act
+            var result = list.Contains(list.Head);
+
+            //Assert
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public void ContainsNode_NonContainsNode_Flase()
+        {
+            //Arrange
+            var list = new MyLinkedList<int>(new int[] { 1, 2, 3, });
+
+            //Act
+            var result = list.Contains(new MyLinkedListNode<int>(1));
+
+            //Assert
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public void ContainsNode_NullNode_Flase()
+        {
+            //Arrange
+            var list = new MyLinkedList<int>(new int[] { 1, 2, 3, });
+
+            //Act
+            var result = list.Contains(null);
+
+            //Assert
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public void CopyTo_ArrayIndexLessThan0_ShouldThrowArgumentOutOfRangeException()
+        {
+            //Arrange
+            var list = new MyLinkedList<int>(new int[] { 1, 2, 3, });
+            var arr = new int[10];
+
+            //Act
+            var action = () => list.CopyTo(arr, -1);
+
+            //Assert
+            action.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
+        public void CopyTo_ArrayIndexMoreThenArrayLength_ShouldThrowArgumentOutOfRangeException()
+        {
+            //Arrange
+            var list = new MyLinkedList<int>(new int[] { 1, 2, 3, });
+            var arr = new int[10];
+
+            //Act
+            var action = () => list.CopyTo(arr, 12);
+
+            //Assert
+            action.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
+        public void CopyTo_ArrayIndexMoreThenArrayCapacity_ShouldThrowArgumentException()
+        {
+            //Arrange
+            var list = new MyLinkedList<int>(new int[] { 1, 2, 3, });
+            var arr = new int[10];
+
+            //Act
+            var action = () => list.CopyTo(arr, 9);
+
+            //Assert
+            action.Should().Throw<ArgumentException>();
+        }
     }
 }
