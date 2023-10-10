@@ -250,21 +250,6 @@ namespace Lab1
             while (current != Head);
         }
 
-        public IEnumerator<MyLinkedListNode<T>> GetEnumeratorWithNodes()
-        {
-            if (Head == null)
-                yield break;
-
-            MyLinkedListNode<T> current = Head;
-
-            do
-            {
-                yield return current;
-                current = current.Next!;
-            }
-            while (current != Head);
-        }
-
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
