@@ -121,17 +121,21 @@ namespace Lab1
         #region Removings
 
         public bool Remove(T item)
-        {
-            var node = new MyLinkedListNode<T>(item);
+        {           
+            var node = Find(item);
+
+            if (node == null)
+                return false;
 
             return Remove(node);
         }
 
-        public bool Remove(MyLinkedListNode<T> item)
+        public bool Remove(MyLinkedListNode<T> node)
         {
-            var node = Find(item.Value);
-
             if (node == null)
+                return false;
+
+            if (!Contains(node))
                 return false;
 
             if(_count == 1)
@@ -169,6 +173,24 @@ namespace Lab1
         public bool Contains(T item)
         {
             return Find(item) != null;
+        }
+
+        public bool Contains(MyLinkedListNode<T> node)
+        {
+            if (node == null || Head == null)
+                return false;
+
+            MyLinkedListNode<T> current = Head;
+
+            do
+            {
+                if (current.Equals(node))
+                    return true;
+                current = current.Next!;
+            }
+            while (current != Head);
+                        
+            return false;
         }
 
         public MyLinkedListNode<T>? Find(T values)
@@ -226,7 +248,22 @@ namespace Lab1
                 current = current.Next!;
             }
             while (current != Head);
-        }        
+        }
+
+        public IEnumerator<MyLinkedListNode<T>> GetEnumeratorWithNodes()
+        {
+            if (Head == null)
+                yield break;
+
+            MyLinkedListNode<T> current = Head;
+
+            do
+            {
+                yield return current;
+                current = current.Next!;
+            }
+            while (current != Head);
+        }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -252,6 +289,20 @@ namespace Lab1
         {
             Next = next;
             Previous = previous;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            var node = obj as MyLinkedListNode<T>;
+
+            return (Value?.Equals(node.Value) ?? true) && ReferenceEquals(Next, node.Next) && ReferenceEquals(Previous, node.Previous);
+        }
+
+        public override int GetHashCode()
+        {
+            if(Value == null) return 0;
+
+            return Value.GetHashCode();
         }
     }
 }
