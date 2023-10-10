@@ -279,6 +279,7 @@ namespace Lab1
         public override bool Equals(object? obj)
         {
             var node = obj as MyLinkedListNode<T>;
+            if (node == null) return false;
 
             return (Value?.Equals(node.Value) ?? true) && ReferenceEquals(Next, node.Next) && ReferenceEquals(Previous, node.Previous);
         }
