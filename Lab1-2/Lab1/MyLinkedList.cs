@@ -132,8 +132,7 @@ namespace Lab1
 
         public bool Remove(MyLinkedListNode<T> node)
         {
-            if (node == null)
-                return false;
+            ArgumentNullException.ThrowIfNull(node);
 
             if (!Contains(node))
                 return false;
@@ -199,7 +198,7 @@ namespace Lab1
 
             foreach(var value in this)
             {
-                if (value!.Equals(values))
+                if (value?.Equals(values) ?? values is null)
                 {
                     return current;
                 }

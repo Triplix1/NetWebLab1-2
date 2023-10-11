@@ -183,6 +183,96 @@ namespace Lab1.Test
             result.Should().Be(false);
             list.Count.Should().Be(3);
         }
+        
+        [Fact]
+        public void RemoveNode_RemoveHead_True()
+        {
+            //Arrange
+            var list = new MyLinkedList<int>(new int[] { 1, 2, 3, });
+            var newHead = list.Head.Next;
+
+            //Act
+            var result = list.Remove(list.Head);
+
+            //Assert
+            result.Should().Be(true);
+            list.Head.Should().Be(newHead);
+            list.Count.Should().Be(2);
+            list.ToArray().Should().BeEquivalentTo(new int[] { 2, 3 });
+        }
+        
+        [Fact]
+        public void RemoveNode_RemoveTail_True()
+        {
+            //Arrange
+            var list = new MyLinkedList<int>(new int[] { 1, 2, 3, });
+            var newTail = list.Tail.Previous;
+
+            //Act
+            var result = list.Remove(list.Tail);
+
+            //Assert
+            result.Should().Be(true);
+            list.Tail.Should().Be(newTail);
+            list.Count.Should().Be(2);
+            list.ToArray().Should().BeEquivalentTo(new int[] { 1, 2 });
+        }
+        
+        [Fact]
+        public void RemoveNode_RemoveAloneElement_True()
+        {
+            //Arrange
+            var list = new MyLinkedList<int>(new int[] { 1 });
+
+            //Act
+            var result = list.Remove(list.Tail);
+
+            //Assert
+            result.Should().Be(true);
+            list.Tail.Should().BeNull();
+            list.Head.Should().BeNull();
+            list.Count.Should().Be(0);
+            list.ToArray().Should().BeEquivalentTo(new int[] {});
+        }
+        
+        [Fact]
+        public void RemoveNode_RemoveNonContailsNode_False()
+        {
+            //Arrange
+            var list = new MyLinkedList<int>(new int[] { 1, 2, 3 });
+            var oldHead = list.Head;
+            var oldTail = list.Tail;
+            var nodeToRemove = new MyLinkedListNode<int>(1);
+
+            //Act
+            var result = list.Remove(nodeToRemove);
+
+            //Assert
+            result.Should().Be(false);
+            list.Tail.Should().Be(oldTail);
+            list.Head.Should().Be(oldHead);
+            list.Count.Should().Be(3);
+            list.ToArray().Should().BeEquivalentTo(new int[] { 1, 2, 3 });
+        }
+        
+        [Fact]
+        public void RemoveNode_Null_ShouldThrowArgumentNullException()
+        {
+            //Arrange
+            var list = new MyLinkedList<int>(new int[] { 1 });
+            var oldHead = list.Head;
+            var oldTail = list.Tail;
+
+            //Act
+            var action = () => list.Remove(null);
+
+            //Assert
+            action.Should().Throw<ArgumentNullException>();
+            list.Tail.Should().Be(oldTail);
+            list.Head.Should().Be(oldHead);
+            list.Count.Should().Be(1);
+            list.ToArray().Should().BeEquivalentTo(new int[] { 1 });
+        }
 
         [Fact]
         public void Contains_NonContains_False()
@@ -320,6 +410,48 @@ namespace Lab1.Test
 
             //Assert
             actualResult.Should().BeEquivalentTo(expectedResult);
+        }
+        
+        [Fact]
+        public void GetHashCode_ValueIsNull_ShouldBeZero()
+        {
+            //Arrange
+            var list = new MyLinkedList<string>(new string[] { "ddd" });
+            list.Head.Value = null;
+
+            //Act
+            var hashCode = list.Head.GetHashCode();
+
+            //Assert
+            hashCode.Should().Be(0);
+        }
+        
+        [Fact]
+        public void GetHashCode_ForEqualLists_ShouldBeEqual()
+        {
+            //Arrange
+            var listFirst = new MyLinkedList<string>(new string[] { "ddd" });
+            var listSecond = new MyLinkedList<string>(new string[] { "ddd" });
+
+            //Act
+            var hashCodeFirst = listFirst.Head.GetHashCode();
+            var hashCodeSecond = listSecond.Head.GetHashCode();
+
+            //Assert
+            hashCodeFirst.Should().Be(hashCodeSecond);
+        }
+        
+        [Fact]
+        public void IsReadOnly_ShouldBeFalse()
+        {
+            //Arrange
+            var list = new MyLinkedList<string>(new string[] { "ddd" });
+
+            //Act
+            var isReadOnly = list.IsReadOnly;
+
+            //Assert
+            isReadOnly.Should().BeFalse();
         }
     }
 }
